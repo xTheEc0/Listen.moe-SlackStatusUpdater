@@ -45,16 +45,9 @@ var connectToRadio = function() {
         }
 
         //Caching data to skip unnecessary updates
-        if(lastSong == nowPlaying)
-        {
-            Console.log("New song info is the same as previous song - skipping updating");
-            return;
-        }
-        else
-        {
-            lastSong = nowPlaying;
-        }
-        
+        if(lastSong == nowPlaying) return;
+        else lastSong = nowPlaying;
+
         // Send relevant information to slack for status update
         Promise.all(process.env.SLACK_TOKEN.split(',').map(token => {
             return request.post('https://slack.com/api/users.profile.set', {
