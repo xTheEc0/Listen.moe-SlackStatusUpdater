@@ -55,7 +55,7 @@ var connectToRadio = function() {
                     token: token,
                     profile: JSON.stringify({
                         "status_text": nowPlaying,
-                        "status_emoji":":listen-moe:",
+                        "status_emoji":":listen-moe:", //Change to whatever emoji you want to be set with your status. This is set as :listen-moe: because I have added this as a custom emoji
                     })
                 }
             })
