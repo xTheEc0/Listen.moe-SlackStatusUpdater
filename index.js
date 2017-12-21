@@ -1,77 +1,76 @@
-// Colored console print out
 require('console-stamp')(console, {
-    pattern:'HH:MM:ss',
+    pattern: 'HH:MM:ss',
     colors: {
         stamp: ["white", "bgRed"],
         label: "white"
     }
 });
-
-var request = require('request-promise-native');
-
-require('dotenv').config({ path: `${__dirname}/.env`,});
-
+require('dotenv').config({
+    path: `${__dirname}/.env`
+});
+const request = require('request-promise-native');
 const WebSocket = require('ws');
 
-var reconnectInterval = 5 * 1000; // 5 second reconnect
+const reconnectInterval = 5 * 1000; // 5 second reconnect
+var lastSong = ""; // Cached song info
 
-var lastSong = "";
+function connectToRadio() {
+    const ws = new WebSocket('https://listen.moe/api/v2/socket', {
+        perMessageDeflate: false
+    });
 
-var connectToRadio = function() {
-    const ws = new WebSocket('https://listen.moe/api/v2/socket');
-
-    ws.on('open', function() {
+    ws.on('open', function open() {
+        console.log(`Connected. Getting information..`);
     });
 
     ws.on('message', function incoming(data) {
-        // If received data is dead return and try again
-        if(!data) return; 
+        if (!data) return;
 
-        // Parse the JSON from Listen.moe
         var parsed = JSON.parse(data);
+        var nowPlaying = `${parsed.artist_name} - ${parsed.song_name}`;
 
-        // If the data received is undefined - try again
-        if(!parsed.song_name && !parsed.artist_name) return;
+        if (parsed.anime_name)
+            nowPlaying += ` [From Anime: ${parsed.anime_name}]`;
 
-        var nowPlaying = `${parsed.artist_name} - ${parsed.song_name}`; 
-       
-       // If anime name is present (not null) add it to string
-        if (parsed.anime_name) nowPlaying += ` [From Anime: ${parsed.anime_name}]`; 
-        
-        // Truncate string if we exceed 100 symbols (max slack status)
-        if(nowPlaying.length >= 100) {
-            nowPlaying = nowPlaying.substring(0, 98);
-            nowPlaying += "..";
+        if (nowPlaying.length >= 100) {
+            nowPlaying = nowPlaying.substr(0, 98);
+            nowPlaying += `..`;
         }
 
-        //Caching data to skip unnecessary updates
-        if(lastSong == nowPlaying) return;
-        else lastSong = nowPlaying;
+        if (lastSong == nowPlaying)
+            return;
+        else
+            lastSong = nowPlaying;
 
-        // Send relevant information to slack for status update
-        Promise.all(process.env.SLACK_TOKEN.split(',').map(token => {
+        updateSlack(nowPlaying);
+    });
+
+    ws.on('error', function() {
+        console.error(`Connection Error. Reconnecting..`);
+        setTimeout(connectToRadio, reconnectInterval);
+    });
+
+    ws.on('close', function() {
+        console.error(`Connection Closed. Reconnecting..`);
+        setTimeout(connectToRadio, reconnectInterval);
+    });
+}
+
+function updateSlack(currentSong) {
+    Promise.all(process.env.SLACK_TOKEN.split(',').map(token => {
             return request.post('https://slack.com/api/users.profile.set', {
                 form: {
                     token: token,
                     profile: JSON.stringify({
-                        "status_text": nowPlaying,
-                        "status_emoji":":listen-moe:", //Change to whatever emoji you want to be set with your status. This is set as :listen-moe: because I have added this as a custom emoji
+                        "status_text": currentSong,
+                        "status_emoji": ":listen-moe:"
                     })
                 }
             })
         }))
         .then(() => {
-            console.log(`Listen.moe: ${nowPlaying}\n`);
-        });
-    });
-
-    ws.on('error', function() {
-        setTimeout(connectToRadio, reconnectInterval);
-    });
-
-    ws.on('close', function() {
-        setTimeout(connectToRadio, reconnectInterval);
-    });
-};
+            console.log(`Listen.moe: ${currentSong}\n`);
+        })
+}
 
 connectToRadio();

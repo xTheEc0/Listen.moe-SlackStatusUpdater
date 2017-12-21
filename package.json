@@ -1,0 +1,26 @@
+{
+  "name": "listen.moe-slackstatusupdater",
+  "version": "1.0.0",
+  "description": "Updates your slack status with song information from https://listen.moe  \r Huge thanks to guys and gals from Listen.moe discord for helping me deal with their websocket API and promising that V4 will be much better : P",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xTheEc0/Listen.moe-SlackStatusUpdater.git"
+  },
+  "author": "xTheEc0",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xTheEc0/Listen.moe-SlackStatusUpdater/issues"
+  },
+  "homepage": "https://github.com/xTheEc0/Listen.moe-SlackStatusUpdater#readme",
+  "dependencies": {
+    "console-stamp": "^0.2.6",
+    "dotenv": "^4.0.0",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5",
+    "ws": "^3.3.3"
+  }
+}
