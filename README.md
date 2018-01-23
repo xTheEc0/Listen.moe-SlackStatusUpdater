@@ -1,7 +1,10 @@
 # Listen.moeSlackStatus by xTheEc0
 Updates your slack status with song information from https://listen.moe  
-Huge thanks to guys and gals from Listen.moe discord for helping me deal with their websocket API and promising that V4 will be much better : P
+Huge thanks to guys and gals from Listen.moe discord for helping me deal with their websocket : P  
 
+UPDATE 2018-01-23 - The peeps at listen.moe released v4 of their API recently, so I updated the project (totally not because v2 that I was using was killed...)  
+
+P.S: I am in no way good at js or programming. Just a little personal pet project : )
   
 ![]()  
 
@@ -18,7 +21,7 @@ To launch:
 
 
 Issues:  
-After about 7 days of continous running crashes with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory`
+After about 7 days of continous running it crashes with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory`
 ![](https://puu.sh/xmhcu/2841bc166d.png, "Crash stack")
 But let's be honest - JavaScript needs a day off too..
 
@@ -29,4 +32,4 @@ But let's be honest - JavaScript needs a day off too..
 Notes:  
 If you got this far.. thanks?  
 If you want to (and can) improve this code, please do, PR it, and I will (most likely) accept it : )  
-I am more familiar with C++/C# sytax/formatting so if the formatting for my js looks like something out of programmers horror movie, thats because it is. Sorry for the PTSD.  
+I am more familiar with C++/C# sytax/formatting so if the formatting for my js looks like something out of horror movie for you, thats because it is. Sorry for the PTSD.

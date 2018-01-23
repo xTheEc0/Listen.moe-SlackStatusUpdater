@@ -12,48 +12,108 @@ const request = require('request-promise-native');
 const WebSocket = require('ws');
 
 const reconnectInterval = 5 * 1000; // 5 second reconnect
-var lastSong = ""; // Cached song info
 
-function connectToRadio() {
-    const ws = new WebSocket('https://listen.moe/api/v2/socket', {
+var alive = false;
+var hb = null;
+
+function init() {
+    const ws = new WebSocket('wss://listen.moe/gateway', {
         perMessageDeflate: false
     });
 
-    ws.on('open', function open() {
-        console.log(`Connected. Getting information..`);
+    ws.on('open', function () {
+        console.log(`Alright we got a connection. \\o/`);
+        ws.send(JSON.stringify({
+            op: 0,
+            d: {
+                auth: ''
+            }
+        }));
     });
 
-    ws.on('message', function incoming(data) {
-        if (!data) return;
+    ws.on('error', function (err) {
+        console.error(err);
+    });
 
-        var parsed = JSON.parse(data);
-        var nowPlaying = `${parsed.artist_name} - ${parsed.song_name}`;
+    ws.on('close', function(err) {
+        if (err) console.info(err);
+        console.info('%cWebsocket connection closed. Reconnecting...');
+        clearInterval(sendHeartbeat);
+        setTimeout(init(), reconnectInterval);
+    });
 
-        if (parsed.anime_name)
-            nowPlaying += ` [From Anime: ${parsed.anime_name}]`;
+    ws.on('message', function (message) {
 
-        if (nowPlaying.length >= 100) {
-            nowPlaying = nowPlaying.substr(0, 98);
-            nowPlaying += `..`;
+        let response;
+
+        try {
+            response = JSON.parse(message);
+        } catch (err) {
+            return console.error(err);
         }
 
-        if (lastSong == nowPlaying)
-            return;
-        else
-            lastSong = nowPlaying;
+        if (response.op === 0) {
+            return heartbeat(response.d.heartbeat);
+        }
 
-        updateSlack(nowPlaying);
+        if (response.op === 1) {
+            if (response.t !== 'TRACK_UPDATE' && response.t !== 'TRACK_UPDATE_REQUEST') return;
+
+            let songInfo = response.d.song;
+            let artists = [];
+            songInfo.artists.map(function (artist) {
+                artists.push(artist.name);
+            });
+
+            let nowPlaying = `${artists.join(', ')} - ${songInfo.title}`;
+
+            let animeName;
+            if (songInfo.source[0]) {
+                if (songInfo.source[0].name) {
+                    animeName = songInfo.source[0].name;
+                } else if (songInfo.source[0].nameRomaji) {
+                    animeName = songInfo.source[0].nameRomaji;
+                }
+            }
+
+            if (animeName)
+                nowPlaying += ` [From Anime: ${animeName}`;
+
+            if (nowPlaying.length >= 100) {
+                nowPlaying = nowPlaying.substr(0, 98);
+                nowPlaying += `..`;
+            }
+
+            updateSlack(nowPlaying);
+        }
     });
 
-    ws.on('error', function() {
-        console.error(`Connection Error. Reconnecting..`);
-        setTimeout(connectToRadio, reconnectInterval);
-    });
-
-    ws.on('close', function() {
-        console.error(`Connection Closed. Reconnecting..`);
-        setTimeout(connectToRadio, reconnectInterval);
-    });
+    function heartbeat(heartbeat) {
+        var beater = null;
+        if (!alive) {
+            console.info('Sending heartbeat...');
+            ws.send(JSON.stringify({
+                op: 9
+            }));
+            beater = setInterval(function () {
+                ws.send(JSON.stringify({
+                    op: 9
+                }));
+            }, heartbeat);
+        } else {
+            if (heartbeat != hb) {
+                ws.send(JSON.stringify({
+                    op: 9
+                }));
+                clearInterval(beater);
+                beater = setInterval(function () {
+                    ws.send(JSON.stringify({
+                        op: 9
+                    }));
+                }, heartbeat);
+            }
+        }
+    }
 }
 
 function updateSlack(currentSong) {
@@ -73,4 +133,4 @@ function updateSlack(currentSong) {
         })
 }
 
-connectToRadio();
+init();
