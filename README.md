@@ -1,8 +1,13 @@
 # Listen.moeSlackStatus by xTheEc0
 Updates your slack status with song information from https://listen.moe  
-Huge thanks to guys and gals from Listen.moe discord for helping me deal with their websocket : P  
+Huge thanks to guys and gals from Listen.moe discord for helping me deal with their API : P  
+
 
 UPDATE 2018-01-23 - The peeps at listen.moe released v4 of their API recently, so I updated the project (totally not because v2 that I was using was killed...)  
+
+UPDATE 2018-01-24 - HUGE Thanks to TheAkio for wrapping up the WebSocket for Listen.moe. Code is so much simpler now!  
+https://www.npmjs.com/package/listenmoe.js  
+https://github.com/TheAkio/listenmoe.js
 
 P.S: I am in no way good at js or programming. Just a little personal pet project : )
   
