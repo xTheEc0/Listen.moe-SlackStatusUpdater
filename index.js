@@ -16,21 +16,18 @@ const moe = new ListenMoeJS();
 
 moe.on('updateTrack', data => {
     let songInfo = data.song;
-    console.log(songInfo);
-    console.log("Anime: " + songInfo.sources.map(source => source.name).join(', '));
-    console.log("Anime: " + songInfo.sources.map(source => source.nameRomaji).join(', '));
 
     let nowPlaying = `${songInfo.artists.map(artist => artist.name).join(', ')} - ${songInfo.title}`;
 
     let animeName;
-    if (songInfo.sources.map(source => source.name).join(', ')) {
+    if (songInfo.sources.map(source => source.name).join(', ').length > 0) {
         animeName = songInfo.sources.map(source => source.name).join(', ');
-    } else if (songInfo.sources.map(source => source.nameRomaji).join(', ')) {
+    } else if (songInfo.sources.map(source => source.nameRomaji).join(', ').length > 0) {
         animeName = songInfo.sources.map(source => source.nameRomaji).join(', ');
     }
 
     if (animeName)
-        nowPlaying += ` [From Anime: ${animeName}`;
+        nowPlaying += ` [From Anime: ${animeName}]`;
 
     if (nowPlaying.length >= 100) {
         nowPlaying = nowPlaying.substr(0, 98);
@@ -39,8 +36,6 @@ moe.on('updateTrack', data => {
 
     updateSlack(nowPlaying);
 });
-
-moe.getCurrentTrack();
 
 moe.connect();
 

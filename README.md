@@ -10,14 +10,16 @@ https://www.npmjs.com/package/listenmoe.js
 https://github.com/TheAkio/listenmoe.js
 
 P.S: I am in no way good at js or programming. Just a little personal pet project : )
+
   
 ![]()  
 
   
 To launch:  
-1. Find all the god damn libraries/modules (not a js dev, don't know how you call them people..)
-2. Add your slack token to .env file (Create here: https://api.slack.com/custom-integrations/legacy-tokens)
-3. Launch `node index.js`
+1. Download or clone repo
+2. Install dependencies `npm i`
+3. Add your slack token to .env file (Create here: https://api.slack.com/custom-integrations/legacy-tokens)
+4. Launch `node index.js`
 
 ![](https://puu.sh/xlvHy/6c972a1f93.png "Example output")
 
@@ -25,7 +27,7 @@ To launch:
 ![]()  
 
 
-Issues:  
+Issues: (not sure if this still applies, needs testing)  
 After about 7 days of continous running it crashes with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory`
 ![](https://puu.sh/xmhcu/2841bc166d.png, "Crash stack")
 But let's be honest - JavaScript needs a day off too..

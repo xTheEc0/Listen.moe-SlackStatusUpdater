@@ -1,7 +1,7 @@
 {
   "name": "listen.moe-slackstatusupdater",
   "version": "1.0.0",
-  "description": "Updates your slack status with song information from https://listen.moe  \r Huge thanks to guys and gals from Listen.moe discord for helping me deal with their websocket API and promising that V4 will be much better : P",
+  "description": "Updates your slack status with song information from https://listen.moe",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
