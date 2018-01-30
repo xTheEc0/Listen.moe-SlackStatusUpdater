@@ -17,17 +17,14 @@ const moe = new ListenMoeJS();
 moe.on('updateTrack', data => {
     let songInfo = data.song;
 
-    let nowPlaying = `${songInfo.artists.map(artist => artist.name).join(', ')} - ${songInfo.title}`;
+    let artists = getArtists(songInfo.artists);
 
-    let animeName;
-    if (songInfo.sources.map(source => source.name).join(', ').length > 0) {
-        animeName = songInfo.sources.map(source => source.name).join(', ');
-    } else if (songInfo.sources.map(source => source.nameRomaji).join(', ').length > 0) {
-        animeName = songInfo.sources.map(source => source.nameRomaji).join(', ');
-    }
+    let source = getSources(songInfo.sources);
 
-    if (animeName)
-        nowPlaying += ` [From Anime: ${animeName}]`;
+    let nowPlaying = `${artists} - ${songInfo.title}`;
+
+    if (source)
+        nowPlaying += ` [From Anime: ${source}]`;
 
     if (nowPlaying.length >= 100) {
         nowPlaying = nowPlaying.substr(0, 98);
@@ -35,6 +32,10 @@ moe.on('updateTrack', data => {
     }
 
     updateSlack(nowPlaying);
+});
+
+moe.on('error', (error) => {
+    console.error(error);
 });
 
 moe.connect();
@@ -54,4 +55,22 @@ function updateSlack(currentSong) {
         .then(() => {
             console.log(`Listen.moe: ${currentSong}\n`);
         })
+}
+
+function getArtists(artists) {
+    var result = [];
+    artists.map(function (artist) {
+        var jointName = (artist.name ? artist.name : '') + (artist.nameRomaji ? (artist.name ? ' (' : '') + artist.nameRomaji + (artist.name ? ')' : '') : '');
+        if (jointName !== '') result.push(jointName);
+    });
+    return result.join(', ');
+}
+
+function getSources(sources) {
+    var result = [];
+    sources.map(function (source) {
+        var jointName = (source.nameRomaji ? source.nameRomaji : '') + (source.name ? (source.nameRomaji ? ' (' : '') + source.name + (source.nameRomaji ? ')' : '') : '');
+        if (jointName !== '') result.push(jointName);
+    });
+    return result.join(', ');
 }
