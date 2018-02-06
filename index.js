@@ -89,18 +89,6 @@ function updateDiscord(currentSong) {
             });
 
     }
-
-    // discordClient.on('ready', () => {
-    // }
-    // .then(( => {
-    //     discordClient.user.setPresence({
-    //         game: {
-    //             name: currentSong,
-    //             type: 'LISTENING',
-    //         },
-    // });
-    // console.log('Discord update: OK');
-    // })
 }
 
 function getArtists(artists) {
