@@ -20,6 +20,7 @@
     "console-stamp": "^0.2.6",
     "discord.js": "^11.3.0",
     "dotenv": "^4.0.0",
+    "eslint": "^4.17.0",
     "listenmoe.js": "0.0.2",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",

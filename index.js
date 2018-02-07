@@ -19,10 +19,11 @@ const Discord = require('discord.js');
 const request = require('request-promise-native');
 const ListenMoeJS = require('listenmoe.js');
 
-
 const discordClient = new Discord.Client();
 let discordReady = false;
 const moe = new ListenMoeJS();
+
+const debugOutput = false;
 
 __INIT__().catch((e) => console.error(e));
 
@@ -33,8 +34,9 @@ discordClient.on('ready', () => {
 moe.on('updateTrack', data => {
     const songInfo = data.song;
 
-    const artists = getArtists(songInfo.artists);
+    if(debugOutput) logDebugMessage(songInfo);
 
+    const artists = getArtists(songInfo.artists);
     const source = getSources(songInfo.sources);
 
     let nowPlaying = `${artists} - ${songInfo.title}`;
@@ -46,21 +48,15 @@ moe.on('updateTrack', data => {
     // Slack has a limit of 100 characters for the status message
     nowPlaying = (nowPlaying.length > 100) ? nowPlaying.substr(0, 98) + '..' : nowPlaying;
 
-    // this way if one of them fails nothing will be resolved
-    // Promise.all([updateSlack(nowPlaying),updateDiscord(nowPlaying)])
-    //     .then(values=>values.map((val)=>console.log(val)))
-    //     .catch(console.error)
-    console.log('');
-    console.log('Starting update cycle');
     Promise.resolve(true)
         // update slack if fails go to catch
         .then(() => updateSlack(nowPlaying))
         // if resolved show output
-        .then(console.log)
+        .then(logUpdateStatus)
         // update discord if fails go to catch
         .then(() => updateDiscord(nowPlaying))
         // if resolved show output
-        .then(console.log)
+        .then(logUpdateStatus)
         .catch((e) => {
             if (e) console.error(e);
         })
@@ -132,6 +128,12 @@ function logDebugMessage(songInfo) {
     console.log('Source romaji: ' + songInfo.sources.map(source => source.nameRomaji).join(', '));
     console.log('Artist romaji: ' + songInfo.artists.map(artist => artist.nameRomaji));
     console.log('Artist normal: ' + songInfo.artists.map(artist => artist.name).join(', '));
+}
+
+function logUpdateStatus(input) {
+    if(debugOutput) {
+        console.log(input);
+    }
 }
 
 function __INIT__() {
