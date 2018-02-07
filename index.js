@@ -73,13 +73,13 @@ function updateSlack(currentSong) {
         request.post('https://slack.com/api/users.profile.set', {
             form: {
                 token: SLACK_TOKEN,
-                profile: {
+                profile: JSON.stringify({
                     'status_text': currentSong,
                     'status_emoji': ':listen-moe:',
-                },
+                }),
             },
         })
-            .then(() => resolve('Slack update: OK'))
+            .then((d) => resolve(!JSON.parse(d).ok ? 'Slack error: ' + JSON.parse(d).error : 'Slack update: OK'))
             .catch((e) => reject('Slack update: ERROR\n' + e));
     });
 }
@@ -98,7 +98,7 @@ function updateDiscord(currentSong) {
                 .catch((e) => reject('Discord update: ERROR\n' + e));
         }
         else {
-            console.log('Discord update: OFFLINE ("Login unsuccessful")\n');
+            console.log('Discord error: Login unsuccessful\n');
             reject();
         }
     });
