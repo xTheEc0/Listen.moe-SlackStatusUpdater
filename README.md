@@ -42,4 +42,4 @@ But let's be honest - JavaScript needs a day off too..
 If you got this far.. thanks?  
 If you want to (and can) improve this code, please do, PR it, and I will (most likely) accept it : )  
 ~~I am more familiar with C++/C# sytax/formatting so if the formatting for my js looks like something out of horror movie for you, thats because it is. Sorry for the PTSD.~~  
-Used ESLint with quite strict rules to make it human readable : D
+Used ESLint with quite strict rules to make it _more_ human readable : D
