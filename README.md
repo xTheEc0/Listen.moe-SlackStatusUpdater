@@ -9,6 +9,10 @@ UPDATE 2018-01-24 - HUGE Thanks to TheAkio for wrapping up the WebSocket for Lis
 https://www.npmjs.com/package/listenmoe.js  
 https://github.com/TheAkio/listenmoe.js
 
+
+UPDATE 2018-03-27 - Now supports jpop and kpop streams. Again, made easy by TheAkio's wrapper : P
+
+
 P.S: I am in no way good at js or programming. Just a little personal pet project : )
 
   
@@ -20,7 +24,8 @@ P.S: I am in no way good at js or programming. Just a little personal pet projec
 2. Install dependencies `npm i`
 3. Add your slack token to .env file (Create here: https://api.slack.com/custom-integrations/legacy-tokens)
 4. Add your discord token to .env file (Yes, this is self botting)
-5. Launch with `node .` or `node index.js`
+5. Launch with `node .` or `node index.js`  
+    1. Launch jpop or kpop stream by specifying `node . kpop` (default: jpop)
 
 ![](https://puu.sh/xlvHy/6c972a1f93.png "Example output")
 
@@ -42,4 +47,4 @@ But let's be honest - JavaScript needs a day off too..
 If you got this far.. thanks?  
 If you want to (and can) improve this code, please do, PR it, and I will (most likely) accept it : )  
 ~~I am more familiar with C++/C# sytax/formatting so if the formatting for my js looks like something out of horror movie for you, thats because it is. Sorry for the PTSD.~~  
-Used ESLint with quite strict rules to make it _more_ human readable : D
+Used ESLint with quite strict rules to make it _more_ human readable : D (**_cough_** *getSources and getArtists methods* **_cough_**)

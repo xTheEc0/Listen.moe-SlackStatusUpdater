@@ -9,6 +9,9 @@ require('dotenv').config({
     path: `${__dirname}/.env`,
 });
 
+const defaultStream = 'jpop';
+const stream = process.argv[2] == 'kpop' ? process.argv[2] : defaultStream;
+
 const {
     DISCORD_TOKEN,
     SLACK_TOKEN,
@@ -21,9 +24,10 @@ const ListenMoeJS = require('listenmoe.js');
 
 const discordClient = new Discord.Client();
 let discordReady = false;
-const moe = new ListenMoeJS();
+const moe = new ListenMoeJS(stream);
 
 const debugOutput = false;
+if(debugOutput) console.log('Selected stream: ' + stream);
 
 __INIT__().catch((e) => console.error(e));
 
