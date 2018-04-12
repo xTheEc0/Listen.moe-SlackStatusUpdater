@@ -1,7 +1,7 @@
 {
   "name": "listen.moe-slackstatusupdater",
   "version": "1.0.0",
-  "description": "Updates your slack status with song information from https://listen.moe",
+  "description": "Updates your slack (and discord) status with song information from https://listen.moe",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,17 +19,18 @@
   "dependencies": {
     "console-stamp": "^0.2.6",
     "discord.js": "^11.3.2",
-    "dotenv": "^4.0.0",
+    "dotenv": "^5.0.1",
     "eslint": "^4.19.1",
     "listenmoe.js": "0.0.3",
+    "memwatch-next": "^0.3.0",
     "request": "^2.85.0",
     "request-promise-native": "^1.0.5",
     "retry-function-promise": "^1.0.2"
   },
   "devDependencies": {
     "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-import": "^2.9.0",
-    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-import": "^2.10.0",
+    "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.0.1"
   }
