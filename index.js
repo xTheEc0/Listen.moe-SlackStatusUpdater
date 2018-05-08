@@ -5,11 +5,17 @@ require('console-stamp')(console, {
         label: 'white',
     },
 });
+
 require('dotenv').config({
     path: `${__dirname}/.env`,
 });
 
+<<<<<<< HEAD
 const stream = process.argv[2].toLowerCase() == 'kpop' ? 'kpop' : 'jpop';
+=======
+let defaultStream = 'jpop';
+let stream = process.argv[2] == 'kpop' ? process.argv[2] : defaultStream;
+>>>>>>> babd6583fecf41e72fae959fcf28420a3dc61017
 
 const {
     DISCORD_TOKEN,
@@ -25,8 +31,8 @@ const discordClient = new Discord.Client();
 let discordReady = false;
 const moe = new ListenMoeJS(stream);
 
-const debugOutput = false;
-if(debugOutput) console.log('Selected stream: ' + stream);
+let debugOutput = true;
+console.log('Selected stream: ' + stream);
 
 __INIT__().catch((e) => console.error(e));
 
@@ -34,13 +40,13 @@ discordClient.on('ready', () => {
     console.log(`Logged in as ${discordClient.user.tag}!`);
 });
 
-moe.on('updateTrack', data => {
-    const songInfo = data.song;
+moe.on('updateTrack', (data) => {
+    let songInfo = data.song;
 
-    if(debugOutput) logDebugMessage(songInfo);
+    if (debugOutput) logDebugMessage(songInfo);
 
-    const artists = getArtists(songInfo.artists);
-    const source = getSources(songInfo.sources);
+    let artists = getArtists(songInfo.artists);
+    let source = getSources(songInfo.sources);
 
     let nowPlaying = `${artists} - ${songInfo.title}`;
 
@@ -54,10 +60,19 @@ moe.on('updateTrack', data => {
     Promise.resolve(true)
         // update slack if fails go to catch
         .then(() => updateSlack(nowPlaying))
+        .catch((e) => {
+            if (e) console.error(e);
+        })
         // if resolved show output
         .then(logUpdateStatus)
+        .catch((e) => {
+            if (e) console.error(e);
+        })
         // update discord if fails go to catch
         .then(() => updateDiscord(nowPlaying))
+        .catch((e) => {
+            if(e) console.error(e);
+        })
         // if resolved show output
         .then(logUpdateStatus)
         .catch((e) => {
@@ -66,10 +81,13 @@ moe.on('updateTrack', data => {
         // error of the one that rejected first
         .then(() => {
             console.log(`Listen.moe: ${nowPlaying}\n`);
+        })
+        .catch((e) => {
+            if (e) console.error(e);
         });
 });
 
-moe.on('error', error => console.error(error));
+moe.on('error', (error) => console.error(error));
 
 function updateSlack(currentSong) {
     return new Promise((resolve, reject) => {
@@ -108,18 +126,18 @@ function updateDiscord(currentSong) {
 }
 
 function getArtists(artists) {
-    const result = [];
-    artists.map(artist => {
-        const jointName = (artist.name ? artist.name : '') + (artist.nameRomaji ? (artist.name ? ' (' : '') + artist.nameRomaji + (artist.name ? ')' : '') : '');
+    let result = [];
+    artists.map((artist) => {
+        let jointName = (artist.name ? artist.name : '') + (artist.nameRomaji ? (artist.name ? ' (' : '') + artist.nameRomaji + (artist.name ? ')' : '') : '');
         if (jointName !== '') result.push(jointName);
     });
     return result.join(', ');
 }
 
 function getSources(sources) {
-    const result = [];
-    sources.map(source => {
-        const jointName = (source.nameRomaji ? source.nameRomaji : '') + (source.name ? (source.nameRomaji ? ' (' : '') + source.name + (source.nameRomaji ? ')' : '') : '');
+    let result = [];
+    sources.map((source) => {
+        let jointName = (source.nameRomaji ? source.nameRomaji : '') + (source.name ? (source.nameRomaji ? ' (' : '') + source.name + (source.nameRomaji ? ')' : '') : '');
         if (jointName !== '') result.push(jointName);
     });
     return result.join(', ');
@@ -134,7 +152,7 @@ function logDebugMessage(songInfo) {
 }
 
 function logUpdateStatus(input) {
-    if(debugOutput) {
+    if (debugOutput) {
         console.log(input);
     }
 }
