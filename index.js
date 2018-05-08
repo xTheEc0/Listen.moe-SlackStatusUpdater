@@ -26,7 +26,7 @@ const discordClient = new Discord.Client();
 let discordReady = false;
 const moe = new ListenMoeJS(stream);
 
-let debugOutput = true;
+const debugOutput = false;
 console.log('Selected stream: ' + stream);
 
 __INIT__().catch((e) => console.error(e));
@@ -36,12 +36,12 @@ discordClient.on('ready', () => {
 });
 
 moe.on('updateTrack', (data) => {
-    let songInfo = data.song;
+    const songInfo = data.song;
 
     if (debugOutput) logDebugMessage(songInfo);
 
-    let artists = getArtists(songInfo.artists);
-    let source = getSources(songInfo.sources);
+    const artists = getArtists(songInfo.artists);
+    const source = getSources(songInfo.sources);
 
     let nowPlaying = `${artists} - ${songInfo.title}`;
 
@@ -121,18 +121,18 @@ function updateDiscord(currentSong) {
 }
 
 function getArtists(artists) {
-    let result = [];
+    const result = [];
     artists.map((artist) => {
-        let jointName = (artist.name ? artist.name : '') + (artist.nameRomaji ? (artist.name ? ' (' : '') + artist.nameRomaji + (artist.name ? ')' : '') : '');
+        const jointName = (artist.name ? artist.name : '') + (artist.nameRomaji ? (artist.name ? ' (' : '') + artist.nameRomaji + (artist.name ? ')' : '') : '');
         if (jointName !== '') result.push(jointName);
     });
     return result.join(', ');
 }
 
 function getSources(sources) {
-    let result = [];
+    const result = [];
     sources.map((source) => {
-        let jointName = (source.nameRomaji ? source.nameRomaji : '') + (source.name ? (source.nameRomaji ? ' (' : '') + source.name + (source.nameRomaji ? ')' : '') : '');
+        const jointName = (source.nameRomaji ? source.nameRomaji : '') + (source.name ? (source.nameRomaji ? ' (' : '') + source.name + (source.nameRomaji ? ')' : '') : '');
         if (jointName !== '') result.push(jointName);
     });
     return result.join(', ');
