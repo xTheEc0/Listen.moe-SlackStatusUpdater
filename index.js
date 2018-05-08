@@ -9,8 +9,7 @@ require('dotenv').config({
     path: `${__dirname}/.env`,
 });
 
-const defaultStream = 'jpop';
-const stream = process.argv[2] == 'kpop' ? process.argv[2] : defaultStream;
+const stream = process.argv[2].toLowerCase() == 'kpop' ? 'kpop' : 'jpop';
 
 const {
     DISCORD_TOKEN,
