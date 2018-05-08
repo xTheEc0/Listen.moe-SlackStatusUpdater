@@ -10,12 +10,7 @@ require('dotenv').config({
     path: `${__dirname}/.env`,
 });
 
-<<<<<<< HEAD
 const stream = process.argv[2].toLowerCase() == 'kpop' ? 'kpop' : 'jpop';
-=======
-let defaultStream = 'jpop';
-let stream = process.argv[2] == 'kpop' ? process.argv[2] : defaultStream;
->>>>>>> babd6583fecf41e72fae959fcf28420a3dc61017
 
 const {
     DISCORD_TOKEN,
