@@ -10,8 +10,7 @@ require('dotenv').config({
     path: `${__dirname}/.env`,
 });
 
-let defaultStream = 'jpop';
-let stream = process.argv[2] == 'kpop' ? process.argv[2] : defaultStream;
+const stream = process.argv[2].toLowerCase() == 'kpop' ? 'kpop' : 'jpop';
 
 const {
     DISCORD_TOKEN,
@@ -27,8 +26,13 @@ const discordClient = new Discord.Client();
 let discordReady = false;
 const moe = new ListenMoeJS(stream);
 
+<<<<<<< HEAD
 let debugOutput = true;
 console.log(`Selected stream: ${stream}`);
+=======
+const debugOutput = false;
+console.log('Selected stream: ' + stream);
+>>>>>>> fb3fbadfe3890ef6eedd284217931b5aed8a1a82
 
 __INIT__().catch((e) => console.error(e));
 
@@ -37,13 +41,18 @@ discordClient.on('ready', () => {
 });
 
 moe.on('updateTrack', (data) => {
-    let songInfo = data.song;
+    const songInfo = data.song;
 
     if (debugOutput) logDebugMessage(songInfo);
 
+<<<<<<< HEAD
     let artists = getArtists(songInfo.artists);
     let source = getSources(songInfo.sources);
     let title = getTitle(songInfo.title, songInfo.titleRomaji);
+=======
+    const artists = getArtists(songInfo.artists);
+    const source = getSources(songInfo.sources);
+>>>>>>> fb3fbadfe3890ef6eedd284217931b5aed8a1a82
 
     let nowPlaying = `${artists} - ${title}`;
 
@@ -123,18 +132,18 @@ function updateDiscord(currentSong) {
 }
 
 function getArtists(artists) {
-    let result = [];
+    const result = [];
     artists.map((artist) => {
-        let jointName = (artist.name ? artist.name : '') + (artist.nameRomaji ? (artist.name ? ' (' : '') + artist.nameRomaji + (artist.name ? ')' : '') : '');
+        const jointName = (artist.name ? artist.name : '') + (artist.nameRomaji ? (artist.name ? ' (' : '') + artist.nameRomaji + (artist.name ? ')' : '') : '');
         if (jointName !== '') result.push(jointName);
     });
     return result.join(', ');
 }
 
 function getSources(sources) {
-    let result = [];
+    const result = [];
     sources.map((source) => {
-        let jointName = (source.nameRomaji ? source.nameRomaji : '') + (source.name ? (source.nameRomaji ? ' (' : '') + source.name + (source.nameRomaji ? ')' : '') : '');
+        const jointName = (source.nameRomaji ? source.nameRomaji : '') + (source.name ? (source.nameRomaji ? ' (' : '') + source.name + (source.nameRomaji ? ')' : '') : '');
         if (jointName !== '') result.push(jointName);
     });
     return result.join(', ');
