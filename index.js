@@ -26,13 +26,8 @@ const discordClient = new Discord.Client();
 let discordReady = false;
 const moe = new ListenMoeJS(stream);
 
-<<<<<<< HEAD
 let debugOutput = true;
 console.log(`Selected stream: ${stream}`);
-=======
-const debugOutput = false;
-console.log('Selected stream: ' + stream);
->>>>>>> fb3fbadfe3890ef6eedd284217931b5aed8a1a82
 
 __INIT__().catch((e) => console.error(e));
 
@@ -45,14 +40,9 @@ moe.on('updateTrack', (data) => {
 
     if (debugOutput) logDebugMessage(songInfo);
 
-<<<<<<< HEAD
     let artists = getArtists(songInfo.artists);
     let source = getSources(songInfo.sources);
     let title = getTitle(songInfo.title, songInfo.titleRomaji);
-=======
-    const artists = getArtists(songInfo.artists);
-    const source = getSources(songInfo.sources);
->>>>>>> fb3fbadfe3890ef6eedd284217931b5aed8a1a82
 
     let nowPlaying = `${artists} - ${title}`;
 
