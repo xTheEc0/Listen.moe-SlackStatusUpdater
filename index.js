@@ -28,7 +28,7 @@ let discordReady = false;
 const moe = new ListenMoeJS(stream);
 
 let debugOutput = true;
-console.log('Selected stream: ' + stream);
+console.log(`Selected stream: ${stream}`);
 
 __INIT__().catch((e) => console.error(e));
 
@@ -43,8 +43,9 @@ moe.on('updateTrack', (data) => {
 
     let artists = getArtists(songInfo.artists);
     let source = getSources(songInfo.sources);
+    let title = getTitle(songInfo.title, songInfo.titleRomaji);
 
-    let nowPlaying = `${artists} - ${songInfo.title}`;
+    let nowPlaying = `${artists} - ${title}`;
 
     if (source) {
         nowPlaying += ` [From Anime: ${source}]`;
@@ -96,8 +97,8 @@ function updateSlack(currentSong) {
                 }),
             },
         })
-            .then((d) => resolve(!JSON.parse(d).ok ? 'Slack error: ' + JSON.parse(d).error : 'Slack update: OK'))
-            .catch((e) => reject('Slack update: ERROR\n' + e));
+            .then((d) => resolve(!JSON.parse(d).ok ? `Slack error: ${JSON.parse(d).error}` : `Slack update: OK`))
+            .catch((e) => reject(`Slack update: ERROR\n ${e}`));
     });
 }
 
@@ -111,11 +112,11 @@ function updateDiscord(currentSong) {
                     type: 'LISTENING',
                 },
             })
-                .then(() => resolve('Discord update: OK'))
-                .catch((e) => reject('Discord update: ERROR\n' + e));
+                .then(() => resolve(`Discord update: OK`))
+                .catch((e) => reject(`Discord update: ERROR\n ${e}`));
         }
         else {
-            console.log('Discord error: Login unsuccessful\n');
+            console.log(`Discord error: Login unsuccessful\n`);
             reject();
         }
     });
@@ -139,12 +140,22 @@ function getSources(sources) {
     return result.join(', ');
 }
 
+function getTitle(title, titleRomaji) {
+    let jointTitle = title + (titleRomaji ? ` (${titleRomaji})` : ``);
+    return jointTitle;
+}
+
 function logDebugMessage(songInfo) {
+    console.log(`--- --- --- --- --- --- ---`);
     console.log(songInfo);
-    console.log('Source normal: ' + songInfo.sources.map(source => source.name).join(', '));
-    console.log('Source romaji: ' + songInfo.sources.map(source => source.nameRomaji).join(', '));
-    console.log('Artist romaji: ' + songInfo.artists.map(artist => artist.nameRomaji));
-    console.log('Artist normal: ' + songInfo.artists.map(artist => artist.name).join(', '));
+    console.log(``);
+    console.log(`Artist normal: ${songInfo.artists.map(artist => artist.name).join(', ')}`);
+    console.log(`Artist romaji: ${songInfo.artists.map(artist => artist.nameRomaji).join(', ')}`);
+    console.log(`Source normal: ${songInfo.sources.map(source => source.name).join(', ')}`);
+    console.log(`Source romaji: ${songInfo.sources.map(source => source.nameRomaji).join(', ')}`);
+    console.log(`Title normal: ${songInfo.title}`);
+    console.log(`Title romaji: ${songInfo.titleRomaji}`);
+    console.log(``);
 }
 
 function logUpdateStatus(input) {
@@ -163,13 +174,13 @@ function __INIT__() {
                 moe.connect();
                 resolve();
             }).catch((e) => {
-                if (e.message != 'Incorrect login details were provided.') {
+                if (e.message != `Incorrect login details were provided.`) {
                     retry(5, 2000, [discordClient, discordClient.login], [DISCORD_TOKEN])
                         .then(() => {
-                            console.log('Logged in to discord succesfully');
+                            console.log(`Logged in to discord succesfully`);
                         })
                         .catch((err) => {
-                            console.error('All retries were unsuccessful, could not connect to discord');
+                            console.error(`All retries were unsuccessful, could not connect to discord`);
                             console.error(err);
                         });
                 }
