@@ -26,7 +26,7 @@ const discordClient = new Discord.Client();
 let discordReady = false;
 const moe = new ListenMoeJS(stream);
 
-let debugOutput = true;
+let debugOutput = false;
 console.log(`Selected stream: ${stream}`);
 
 __INIT__().catch((e) => console.error(e));
@@ -121,6 +121,7 @@ function updateDiscord(currentSong) {
     });
 }
 
+//https://jsfiddle.net/tr0op48y/
 function getArtists(artists) {
     const result = [];
     artists.map((artist) => {
