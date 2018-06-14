@@ -10,7 +10,7 @@ require('dotenv').config({
     path: `${__dirname}/.env`,
 });
 
-const stream = process.argv[2].toLowerCase() == 'kpop' ? 'kpop' : 'jpop';
+const stream = process.argv[2] ? (process.argv[2].toLowerCase() == 'kpop' ? 'kpop' : 'jpop') : 'jpop';
 
 const {
     DISCORD_TOKEN,
@@ -26,7 +26,7 @@ const discordClient = new Discord.Client();
 let discordReady = false;
 const moe = new ListenMoeJS(stream);
 
-let debugOutput = false;
+let debugOutput = true;
 console.log(`Selected stream: ${stream}`);
 
 __INIT__().catch((e) => console.error(e));
@@ -153,7 +153,7 @@ function logDebugMessage(songInfo) {
     console.log(`Source normal: ${songInfo.sources.map(source => source.name).join(', ')}`);
     console.log(`Source romaji: ${songInfo.sources.map(source => source.nameRomaji).join(', ')}`);
     console.log(`Title normal: ${songInfo.title}`);
-    console.log(`Title romaji: ${songInfo.titleRomaji}`);
+    console.log(`Title romaji: ` + (songInfo.titleRomaji ? songInfo.titleRomaji : ``));
     console.log(``);
 }
 
