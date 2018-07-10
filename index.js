@@ -1,3 +1,8 @@
+const dotEnv = require('dotenv');
+const retry = require('retry-function-promise');
+const Discord = require('discord.js');
+const request = require('request-promise-native');
+const ListenMoeJS = require('listenmoe.js');
 require('console-stamp')(console, {
     pattern: 'HH:MM:ss',
     colors: {
@@ -6,170 +11,113 @@ require('console-stamp')(console, {
     },
 });
 
-require('dotenv').config({
-    path: `${__dirname}/.env`,
-});
+dotEnv.config({ path: `${__dirname}/.env` });
+const { DEBUG, DISCORD_TOKEN, SLACK_TOKEN } = process.env;
 
-const stream = process.argv[2] ? (process.argv[2].toLowerCase() == 'kpop' ? 'kpop' : 'jpop') : 'jpop';
-
-const {
-    DISCORD_TOKEN,
-    SLACK_TOKEN,
-} = process.env;
-
-const retry = require('retry-function-promise');
-const Discord = require('discord.js');
-const request = require('request-promise-native');
-const ListenMoeJS = require('listenmoe.js');
+const moeStream = process.argv[2] ? (process.argv[2].toLowerCase() == 'kpop' ? 'kpop' : 'jpop') : 'jpop';
+console.log(`Selected stream: ${moeStream}`);
 
 const discordClient = new Discord.Client();
-let discordReady = false;
-const moe = new ListenMoeJS(stream);
-
-let debugOutput = false;
-console.log(`Selected stream: ${stream}`);
-
-__INIT__().catch((e) => console.error(e));
-
 discordClient.on('ready', () => {
     console.log(`Logged in as ${discordClient.user.tag}!`);
 });
 
-moe.on('updateTrack', (data) => {
+const moe = new ListenMoeJS(moeStream);
+
+moe.on('updateTrack', async (data) => {
     const songInfo = data.song;
 
-    if (debugOutput) logDebugMessage(songInfo);
+    if (DEBUG) logDebugMessage(songInfo);
 
-    let artists = getArtists(songInfo.artists);
-    let source = getSources(songInfo.sources);
-    let title = getTitle(songInfo.title, songInfo.titleRomaji);
+    const artists = songInfo.artists
+        .filter(({ name, nameRomaji }) => name || nameRomaji)
+        .map(({ name, nameRomaji }) => (name + (nameRomaji ? ` (${nameRomaji})` : '')) || nameRomaji)
+        .join(', ');
 
-    let nowPlaying = `${artists} - ${title}`;
+    const source = songInfo.sources
+        .filter(({ name, nameRomaji }) => name || nameRomaji)
+        .map(({ name, nameRomaji }) => (nameRomaji + (name ? ` (${name})` : '')) || name)
+        .join(', ');
 
-    if (source) {
-        nowPlaying += ` [From Anime: ${source}]`;
+    const title = songInfo.title + (songInfo.titleRomaji ? ` (${songInfo.titleRomaji})` : '');
+
+    const nowPlaying = `${artists} - ${title}` + (source ? ` [From Anime: ${source}]` : '');
+
+    try {
+        await Promise.all([
+            updateSlack(nowPlaying),
+            updateDiscord(nowPlaying),
+        ]);
+        console.log(`Listen.moe: ${nowPlaying}\n`);
     }
-
-    // Slack has a limit of 100 characters for the status message
-    nowPlaying = (nowPlaying.length > 100) ? nowPlaying.substr(0, 98) + '..' : nowPlaying;
-
-    Promise.resolve(true)
-        // update slack if fails go to catch
-        .then(() => updateSlack(nowPlaying))
-        .catch((e) => {
-            if (e) console.error(e);
-        })
-        // if resolved show output
-        .catch((e) => {
-            if (e) console.error(e);
-        })
-        // update discord if fails go to catch
-        .then(() => updateDiscord(nowPlaying))
-        .catch((e) => {
-            if(e) console.error(e);
-        })
-        // if resolved show output
-        .catch((e) => {
-            if (e) console.error(e);
-        })
-        // error of the one that rejected first
-        .then(() => {
-            console.log(`Listen.moe: ${nowPlaying}\n`);
-        })
-        .catch((e) => {
-            if (e) console.error(e);
-        });
+    catch (e) {
+        console.error(e);
+    }
 });
 
 moe.on('error', (error) => console.error(error));
 
-function updateSlack(currentSong) {
-    return new Promise((resolve, reject) => {
-        request.post('https://slack.com/api/users.profile.set', {
-            form: {
-                token: SLACK_TOKEN,
-                profile: JSON.stringify({
-                    'status_text': currentSong,
-                    'status_emoji': ':listen-moe:',
-                }),
-            },
-        })
-            .then((d) => resolve(!JSON.parse(d).ok ? `Slack error: ${JSON.parse(d).error}` : `Slack update: OK`))
-            .catch((e) => reject(`Slack update: ERROR\n ${e}`));
-    });
+async function main() {
+    // starting with discord since discord login is async while moe doesnt return promise and is harder to catch
+    try {
+        await retry(5, 2000, [discordClient, discordClient.login], [DISCORD_TOKEN]);
+        console.log('Logged in to discord succesfully');
+        moe.connect();
+        return;
+    }
+    catch (e) {
+        if (e.message != 'Incorrect login details were provided') {
+            try {
+                await retry(5, 2000, [discordClient, discordClient.login], [DISCORD_TOKEN]);
+            }
+            catch (err) {
+                console.error('All retries were unsuccessful, could not connect to discord');
+                console.error(err);
+            }
+        }
+        throw e;
+    }
+    finally {
+        moe.connect();
+    }
 }
 
-function updateDiscord(currentSong) {
-
-    return new Promise((resolve, reject) => {
-        if (discordReady) {
-            discordClient.user.setPresence({
-                game: {
-                    name: currentSong,
-                    type: 'LISTENING',
-                },
-            })
-                .then(() => resolve(`Discord update: OK`))
-                .catch((e) => reject(`Discord update: ERROR\n ${e}`));
-        }
-        else {
-            console.log(`Discord error: Login unsuccessful\n`);
-            reject();
-        }
+async function updateSlack(currentSong) {
+    const statusText = (currentSong.length > 100) ? currentSong.substr(0, 98) + '..' : currentSong;
+    const d = await request.post('https://slack.com/api/users.profile.set', {
+        form: {
+            token: SLACK_TOKEN,
+            profile: JSON.stringify({
+                'status_text': statusText,
+                'status_emoji': ':listen-moe:',
+            }),
+        },
     });
+    if (!JSON.parse(d).ok) throw new Error(JSON.parse(d).error);
+    return;
 }
 
-const getArtists = artists => artists
-    .filter(({ name, nameRomaji }) => name || nameRomaji)
-    .map(({ name, nameRomaji }) => (name + (nameRomaji ? `(${nameRomaji})` : '')) || nameRomaji)
-    .join(', ');
-
-const getSources = sources => sources
-    .filter(({ name, nameRomaji }) => name || nameRomaji)
-    .map(({ name, nameRomaji }) => (nameRomaji + (name ? `(${name})` : '')) || name)
-    .join(', ');
-
-function getTitle(title, titleRomaji) {
-    let jointTitle = title + (titleRomaji ? ` (${titleRomaji})` : ``);
-    return jointTitle;
+async function updateDiscord(currentSong) {
+    await discordClient.user.setPresence({
+        game: {
+            name: currentSong,
+            type: 'LISTENING',
+        },
+    });
 }
 
 function logDebugMessage(songInfo) {
-    console.log(``);
-    console.log(`--- --- --- --- --- --- ---`);
+    console.log('');
+    console.log('--- --- --- --- --- --- ---');
     console.log(songInfo);
-    console.log(``);
+    console.log('');
     console.log(`Artist normal: ${songInfo.artists.map(artist => artist.name).join(', ')}`);
     console.log(`Artist romaji: ${songInfo.artists.map(artist => artist.nameRomaji).join(', ')}`);
     console.log(`Source normal: ${songInfo.sources.map(source => source.name).join(', ')}`);
     console.log(`Source romaji: ${songInfo.sources.map(source => source.nameRomaji).join(', ')}`);
     console.log(`Title normal: ${songInfo.title}`);
-    console.log(`Title romaji: ` + (songInfo.titleRomaji ? songInfo.titleRomaji : ``));
-    console.log(``);
+    console.log('Title romaji: ' + (songInfo.titleRomaji ? songInfo.titleRomaji : ''));
+    console.log('');
 }
 
-function __INIT__() {
-    return new Promise((resolve, reject) => {
-        // starting with discord since discord login is async while moe doesnt return promise and is harder to catch
-        discordClient
-            .login(DISCORD_TOKEN)
-            .then(() => {
-                discordReady = true;
-                moe.connect();
-                resolve();
-            }).catch((e) => {
-                if (e.message != `Incorrect login details were provided.`) {
-                    retry(5, 2000, [discordClient, discordClient.login], [DISCORD_TOKEN])
-                        .then(() => {
-                            console.log(`Logged in to discord succesfully`);
-                        })
-                        .catch((err) => {
-                            console.error(`All retries were unsuccessful, could not connect to discord`);
-                            console.error(err);
-                        });
-                }
-                moe.connect();
-                reject(e.message);
-            });
-    });
-}
+main().catch((e) => console.error(e));
