@@ -60,7 +60,6 @@ moe.on('updateTrack', (data) => {
             if (e) console.error(e);
         })
         // if resolved show output
-        .then(logUpdateStatus)
         .catch((e) => {
             if (e) console.error(e);
         })
@@ -70,7 +69,6 @@ moe.on('updateTrack', (data) => {
             if(e) console.error(e);
         })
         // if resolved show output
-        .then(logUpdateStatus)
         .catch((e) => {
             if (e) console.error(e);
         })
@@ -121,24 +119,15 @@ function updateDiscord(currentSong) {
     });
 }
 
-//https://jsfiddle.net/tr0op48y/
-function getArtists(artists) {
-    const result = [];
-    artists.map((artist) => {
-        const jointName = (artist.name ? artist.name : '') + (artist.nameRomaji ? (artist.name ? ' (' : '') + artist.nameRomaji + (artist.name ? ')' : '') : '');
-        if (jointName !== '') result.push(jointName);
-    });
-    return result.join(', ');
-}
+const getArtists = artists => artists
+    .filter(({ name, nameRomaji }) => name || nameRomaji)
+    .map(({ name, nameRomaji }) => (name + (nameRomaji ? `(${nameRomaji})` : '')) || nameRomaji)
+    .join(', ');
 
-function getSources(sources) {
-    const result = [];
-    sources.map((source) => {
-        const jointName = (source.nameRomaji ? source.nameRomaji : '') + (source.name ? (source.nameRomaji ? ' (' : '') + source.name + (source.nameRomaji ? ')' : '') : '');
-        if (jointName !== '') result.push(jointName);
-    });
-    return result.join(', ');
-}
+const getSources = sources => sources
+    .filter(({ name, nameRomaji }) => name || nameRomaji)
+    .map(({ name, nameRomaji }) => (nameRomaji + (name ? `(${name})` : '')) || name)
+    .join(', ');
 
 function getTitle(title, titleRomaji) {
     let jointTitle = title + (titleRomaji ? ` (${titleRomaji})` : ``);
@@ -146,6 +135,7 @@ function getTitle(title, titleRomaji) {
 }
 
 function logDebugMessage(songInfo) {
+    console.log(``);
     console.log(`--- --- --- --- --- --- ---`);
     console.log(songInfo);
     console.log(``);
@@ -156,12 +146,6 @@ function logDebugMessage(songInfo) {
     console.log(`Title normal: ${songInfo.title}`);
     console.log(`Title romaji: ` + (songInfo.titleRomaji ? songInfo.titleRomaji : ``));
     console.log(``);
-}
-
-function logUpdateStatus(input) {
-    if (debugOutput) {
-        console.log(input);
-    }
 }
 
 function __INIT__() {
