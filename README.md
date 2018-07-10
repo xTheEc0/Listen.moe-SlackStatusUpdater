@@ -1,5 +1,5 @@
 # Listen.moe-SlackStatusUpdater by xTheEc0
-Updates your slack status with song information from https://listen.moe  
+Updates your slack status (and discord presence) with song information from https://listen.moe  
 Huge thanks to guys and gals from Listen.moe discord for helping me deal with their API : P  
 
 
@@ -11,6 +11,8 @@ https://github.com/TheAkio/listenmoe.js
 
 
 UPDATE 2018-03-27 - Now supports jpop and kpop streams. Again, made easy by TheAkio's wrapper : P
+
+UPDATE 2018-07-10 - Complete code rework thanks to people from reddit : )
 
 
 P.S: I am in no way good at js or programming. Just a little personal pet project : )
@@ -28,16 +30,6 @@ P.S: I am in no way good at js or programming. Just a little personal pet projec
     1. Launch jpop or kpop stream by specifying `node . kpop` (default: jpop)
 
 ![](https://puu.sh/xlvHy/6c972a1f93.png "Example output")
-
-
-![]()  
-
-
-### Issues:
-### Not sure if this still applies, needs testing..  
-After about 7 days of continous running it crashes with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory`
-![](https://puu.sh/xmhcu/2841bc166d.png, "Crash stack")
-But let's be honest - JavaScript needs a day off too..
 
 
 ![]()  
