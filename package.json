@@ -22,7 +22,6 @@
     "dotenv": "^5.0.1",
     "eslint": "^4.19.1",
     "listenmoe.js": "^0.0.3",
-    "memwatch-next": "^0.3.0",
     "request": "^2.85.0",
     "request-promise-native": "^1.0.5",
     "retry-function-promise": "^1.0.2"
