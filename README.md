@@ -1,3 +1,5 @@
+# Archiving repo - slack no longer has self tokens (atleast, I dont think) so it's not possible to run this this way.
+
 # Listen.moe-SlackStatusUpdater by xTheEc0
 Updates your slack status (and discord presence) with song information from https://listen.moe  
 Huge thanks to guys and gals from Listen.moe discord for helping me deal with their API : P  
